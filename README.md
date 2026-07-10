@@ -20,6 +20,14 @@ npm run sync:notion
 npm run build
 ```
 
+## Automatic Redeploy
+
+Notion database automations require a paid Notion plan. As a free-plan fallback, this repo includes a GitHub Actions workflow that triggers a Vercel Deploy Hook every hour.
+
+1. In Vercel, create a Deploy Hook for the `main` branch.
+2. In GitHub, add the hook URL as a repository secret named `VERCEL_DEPLOY_HOOK_URL`.
+3. The workflow in `.github/workflows/redeploy.yml` will redeploy hourly and can also be run manually from GitHub Actions.
+
 ## Notion Database Properties
 
 | Property | Type |
