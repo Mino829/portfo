@@ -22,6 +22,8 @@ export const works = [
       github: "",
       figma: "https://www.figma.com/design/NsCDLli3aVdxVDIqV33EXZ",
     },
+    thumbnail: "",
+    images: [],
     points: [
       "Works Firstの構成で、プロフィールより制作物を先に見せる。",
       "Notionで作品情報を管理できるよう、データ層を分離。",
@@ -45,6 +47,8 @@ export const works = [
       github: "",
       figma: "",
     },
+    thumbnail: "",
+    images: [],
     points: [
       "ユーザーの入口から完了状態までを一枚の流れで整理。",
       "状態差分とインタラクションをFigma上で検証。",
@@ -68,6 +72,8 @@ export const works = [
       github: "",
       figma: "",
     },
+    thumbnail: "",
+    images: [],
     points: [
       "データ取得、状態管理、表示状態を明確に分離。",
       "アクセシビリティとレスポンシブを初期設計に含める。",

@@ -164,7 +164,7 @@ function WorksSection({ initialCategory }) {
               type="button"
               aria-pressed={work.slug === selectedWork.slug}
             >
-              <FilmStill variant={index} />
+              <FilmStill image={work.thumbnail} variant={index} />
               <span>{work.id}</span>
               <strong>{work.title}</strong>
               <small>{work.stack.join(" / ")}</small>
@@ -199,6 +199,7 @@ function CategoryNav({ category, onChange }) {
 function WorkPreview({ work }) {
   return (
     <article className="work-detail" aria-live="polite">
+      <FilmStill className="work-detail-still" image={work.thumbnail} />
       <span>
         {work.id} / {work.type} / {work.category.toUpperCase()}
       </span>
@@ -239,8 +240,21 @@ function WorkPage({ work }) {
           <h1>{work.title}</h1>
           <p>{work.summary}</p>
         </div>
-        <FilmStill className="work-page-still" />
+        <FilmStill className="work-page-still" image={work.thumbnail} />
       </div>
+
+      {work.images?.length > 0 && (
+        <div className="case-gallery" aria-label={`${work.title} images`}>
+          {work.images.map((image, index) => (
+            <FilmStill
+              className="case-gallery-still"
+              image={image}
+              key={`${image}-${index}`}
+              variant={index}
+            />
+          ))}
+        </div>
+      )}
 
       <div className="case-grid">
         <CaseBlock label="ROLE" value={work.role} />
@@ -347,10 +361,12 @@ function SectionLabel({ number, label }) {
   );
 }
 
-function FilmStill({ className = "", variant = 0 }) {
+function FilmStill({ className = "", image = "", variant = 0 }) {
+  const src = image || "/images/film-still.png";
+
   return (
     <div className={`film-still variant-${variant} ${className}`}>
-      <img src="/images/film-still.png" alt="" aria-hidden="true" />
+      <img src={src} alt="" aria-hidden="true" />
       <div className="still-lines" aria-hidden="true" />
     </div>
   );

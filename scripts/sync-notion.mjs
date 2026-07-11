@@ -54,6 +54,8 @@ const works = payload.results.map((page, index) => {
       github: readUrl(props.GitHub),
       figma: readUrl(props.Figma),
     },
+    thumbnail: readImage(props.Thumbnail),
+    images: readImages(props.Images),
     points: readRichText(props.Points)
       .split("\n")
       .map((point) => point.trim())
@@ -107,4 +109,29 @@ function readMultiSelect(property) {
 
 function readUrl(property) {
   return property?.url ?? "";
+}
+
+function readImage(property) {
+  return readImages(property)[0] ?? "";
+}
+
+function readImages(property) {
+  if (property?.type === "files") {
+    return property.files
+      .map((file) => file.file?.url ?? file.external?.url ?? "")
+      .filter(Boolean);
+  }
+
+  if (property?.type === "url" && property.url) {
+    return [property.url];
+  }
+
+  if (property?.type === "rich_text") {
+    return readRichText(property)
+      .split("\n")
+      .map((url) => url.trim())
+      .filter(Boolean);
+  }
+
+  return [];
 }

@@ -45,8 +45,12 @@ Notion database automations require a paid Notion plan. As a free-plan fallback,
 | Demo | url |
 | GitHub | url |
 | Figma | url |
+| Thumbnail | url preferred, files or rich_text also supported |
+| Images | rich_text with one URL per line preferred, url or files also supported |
 | Points | rich_text, one point per line |
 | Published | checkbox |
+
+For public portfolio images, use stable external image URLs in Notion when possible. Notion-uploaded files can be returned as temporary signed URLs by the API.
 
 ## Routes
 

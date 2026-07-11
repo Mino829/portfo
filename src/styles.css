@@ -399,6 +399,12 @@ h2 {
   padding: 28px 0;
 }
 
+.work-detail-still {
+  aspect-ratio: 1.2;
+  min-height: 0;
+  margin-bottom: 24px;
+}
+
 .work-detail span,
 .work-detail dt {
   color: var(--red);
@@ -477,6 +483,22 @@ h2 {
 
 .work-page-still {
   min-height: 500px;
+}
+
+.case-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 72px;
+}
+
+.case-gallery-still {
+  aspect-ratio: 1.28;
+  min-height: 0;
+}
+
+.case-gallery-still:first-child {
+  grid-column: span 2;
 }
 
 .case-grid {
@@ -658,6 +680,7 @@ h2 {
   .contact-section,
   .section-intro,
   .work-page-hero,
+  .case-gallery,
   .case-body {
     grid-template-columns: 1fr;
   }
@@ -725,6 +748,10 @@ h2 {
 
   .work-page-still {
     min-height: 320px;
+  }
+
+  .case-gallery-still:first-child {
+    grid-column: auto;
   }
 
   .case-grid {
