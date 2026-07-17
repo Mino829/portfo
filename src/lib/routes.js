@@ -3,7 +3,11 @@ export function getRoute(hash) {
   const segments = value.split("/").filter(Boolean);
 
   if (segments[0] === "works" && segments[1]) {
-    return { view: "detail", slug: segments[1], category: "all" };
+    return {
+      view: "detail",
+      slug: normalizeSlug(decodeURIComponent(segments[1])),
+      category: "all",
+    };
   }
 
   if (segments[0] === "apps") {
@@ -22,5 +26,9 @@ export function getRoute(hash) {
 }
 
 export function routeForWork(work) {
-  return `#/works/${work.slug}`;
+  return `#/works/${encodeURIComponent(normalizeSlug(work.slug))}`;
+}
+
+export function normalizeSlug(value = "") {
+  return String(value).trim().toLowerCase();
 }

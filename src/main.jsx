@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { categories, credits, works } from "./data/works.js";
-import { getRoute, routeForWork } from "./lib/routes.js";
+import { getRoute, normalizeSlug, routeForWork } from "./lib/routes.js";
 import "./styles.css";
 
 function useScrollProgress() {
@@ -42,7 +42,9 @@ function App() {
   const progress = useScrollProgress();
   const selectedWork = useMemo(() => {
     if (route.view === "detail") {
-      return works.find((work) => work.slug === route.slug) ?? works[0];
+      return (
+        works.find((work) => normalizeSlug(work.slug) === route.slug) ?? null
+      );
     }
     return works[0];
   }, [route]);
@@ -57,7 +59,7 @@ function App() {
       <Header />
 
       {route.view === "detail" ? (
-        <WorkPage work={selectedWork} />
+        selectedWork ? <WorkPage work={selectedWork} /> : <WorkNotFound />
       ) : (
         <>
           <HomeHero />
@@ -67,6 +69,29 @@ function App() {
         </>
       )}
     </main>
+  );
+}
+
+function WorkNotFound() {
+  return (
+    <section className="work-page section">
+      <a className="back-link" href="#/works">
+        BACK TO WORKS
+      </a>
+      <div className="work-page-hero">
+        <div>
+          <p className="kicker">WORK NOT FOUND</p>
+          <h1>
+            NO
+            <br />
+            WORK
+          </h1>
+          <p>
+            この作品はまだ同期されていないか、NotionのSlugがURLと一致していません。
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }
 

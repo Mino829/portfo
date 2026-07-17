@@ -38,10 +38,11 @@ if (!response.ok) {
 const payload = await response.json();
 const works = payload.results.map((page, index) => {
   const props = page.properties;
+  const title = readTitle(props.Name);
   return {
     id: readRichText(props.Order) || String(index + 1).padStart(2, "0"),
-    slug: readRichText(props.Slug),
-    title: readTitle(props.Name),
+    slug: makeSlug(readRichText(props.Slug) || title),
+    title,
     category: readSelect(props.Category) || "app",
     type: readSelect(props.Type) || "CASE STUDY",
     stack: readMultiSelect(props.Stack),
@@ -109,6 +110,14 @@ function readMultiSelect(property) {
 
 function readUrl(property) {
   return property?.url ?? "";
+}
+
+function makeSlug(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function readImage(property) {
