@@ -386,7 +386,7 @@ function FilmStill({ className = "", image = "", variant = 0 }) {
   const src = image || "/images/film-still.png";
 
   return (
-    <div className={`film-still variant-${variant} ${className}`}>
+    <div className={`film-still variant-${variant} ${image ? "has-image" : ""} ${className}`}>
       <img src={src} alt="" aria-hidden="true" />
       <div className="still-lines" aria-hidden="true" />
     </div>
