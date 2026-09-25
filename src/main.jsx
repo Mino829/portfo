@@ -116,7 +116,7 @@ function HomeHero() {
     <section className="hero" id="top">
       <div className="hero-copy">
         <p className="kicker">
-          CAREER PORTFOLIO &nbsp; ISSUE 02 &nbsp; WEB / UI / FRONTEND
+          CAREER PORTFOLIO &nbsp; INTERACTIVE / VISUAL / DEVELOPMENT
         </p>
         <h1>
           PORTFOLIO
@@ -127,7 +127,7 @@ function HomeHero() {
       <FilmStill className="hero-still" />
       <div className="hero-strip">
         <strong>MINO / CREATIVE DEVELOPER</strong>
-        <p>作る理由、設計する視点、実装する手つき。プロフィールは短く、作品を主役にする。</p>
+        <p>企画からビジュアル制作、実装、展示まで。領域をまたいで体験をかたちにする。</p>
         <b>
           NOTION
           <br />
@@ -173,7 +173,7 @@ function WorksSection({ initialCategory }) {
         </h2>
         <div>
           <p>
-            採用担当が最初に見たいのは、何を作ったか。Notionで作品を管理し、サイト側ではカテゴリと詳細ページに展開する。
+            インタラクティブ展示、グラフィック、Web。それぞれの作品に、制作意図と担当範囲を記録する。
           </p>
           <CategoryNav category={category} onChange={setCategory} />
         </div>
@@ -337,7 +337,7 @@ function CreditSection() {
           LIST
         </h2>
         <p className="red-note">
-          人物紹介はここに圧縮。スキルは作品説明で証明する。
+          ビジュアルと技術の両方から、見る人が参加できる表現を考える。
         </p>
       </div>
       <div className="credit-list">
@@ -358,18 +358,14 @@ function ContactSection() {
       <SectionLabel number="03" label="CONTACT" />
       <h2>CONTACT</h2>
       <div className="contact-panel">
-        <p>採用・インターン・制作相談など、まずはメールまたはGitHubから。</p>
-        <div className="contact-links">
-          <a href="mailto:hello@example.com">MAIL</a>
-          <a href="https://github.com/" target="_blank" rel="noreferrer">
-            GITHUB
-          </a>
-          <a href="https://www.linkedin.com/" target="_blank" rel="noreferrer">
-            LINKEDIN
-          </a>
-          <a href="https://x.com/" target="_blank" rel="noreferrer">
-            X
-          </a>
+          <p>採用・インターン・制作相談など、GitHubまたはInstagramから。</p>
+          <div className="contact-links">
+            <a href="https://github.com/Mino829" target="_blank" rel="noreferrer">
+              GITHUB
+            </a>
+            <a href="https://www.instagram.com/mino_23837/" target="_blank" rel="noreferrer">
+              INSTAGRAM
+            </a>
         </div>
         <span aria-hidden="true">↗</span>
       </div>

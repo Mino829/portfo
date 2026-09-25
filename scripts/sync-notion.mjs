@@ -73,11 +73,11 @@ const output = `export const categories = [
 export const works = ${JSON.stringify(works, null, 2)};
 
 export const credits = [
-  ["ROLE", "Student / Frontend Developer / UI-minded Builder"],
-  ["STACK", "JavaScript, TypeScript, React, Next.js, HTML, CSS"],
-  ["DESIGN", "Figma, responsive layout, interaction, information design"],
-  ["METHOD", "Git, accessibility, API integration, writing, documentation"],
-  ["VOICE", "見た目の強さと、採用で読まれる情報の順序を両立させる。"],
+  ["ROLE", "Creative Technologist / Visual & Interactive Director"],
+  ["STACK", "TouchDesigner, Unreal Engine 5, Blender, React, TypeScript, Go"],
+  ["DESIGN", "3D CG, 映像, インタラクティブ表現, グラフィック"],
+  ["METHOD", "企画, プロトタイピング, 実装, 展示"],
+  ["VOICE", "視覚表現と技術実装を横断し、体験をかたちにする。"],
 ];
 `;
 

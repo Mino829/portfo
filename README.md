@@ -16,7 +16,7 @@ The browser app does not call Notion directly. Keep `NOTION_TOKEN` private and s
 ```bash
 cp .env.example .env
 # Fill NOTION_TOKEN and NOTION_DATABASE_ID
-npm run sync:notion
+node --env-file=.env scripts/sync-notion.mjs
 npm run build
 ```
 
@@ -45,12 +45,12 @@ Notion database automations require a paid Notion plan. As a free-plan fallback,
 | Demo | url |
 | GitHub | url |
 | Figma | url |
-| Thumbnail | url preferred, files or rich_text also supported |
-| Images | rich_text with one URL per line preferred, url or files also supported |
+| Thumbnail | rich_text with a site path or stable image URL |
+| Images | rich_text with one site path or stable image URL per line |
 | Points | rich_text, one point per line |
 | Published | checkbox |
 
-For public portfolio images, use stable external image URLs in Notion when possible. Notion-uploaded files can be returned as temporary signed URLs by the API.
+Store portfolio images in `public/images/works/` and put paths such as `/images/works/example.jpg` in Notion. Stable external image URLs also work. Notion-uploaded files can be returned as temporary signed URLs by the API.
 
 ## Routes
 

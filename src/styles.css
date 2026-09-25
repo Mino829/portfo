@@ -468,8 +468,9 @@ h2 {
 }
 
 .work-page-hero h1 {
-  font-size: clamp(5rem, 12vw, 11rem);
+  font-size: 4.75rem;
   line-height: 0.9;
+  overflow-wrap: anywhere;
 }
 
 .work-page-hero p:not(.kicker) {
@@ -483,6 +484,11 @@ h2 {
 
 .work-page-still {
   min-height: 500px;
+}
+
+.work-page-still img,
+.case-gallery-still img {
+  object-fit: contain;
 }
 
 .case-gallery {
@@ -837,7 +843,7 @@ h2 {
   }
 
   .work-page-hero h1 {
-    font-size: clamp(4.8rem, 20vw, 6.2rem);
+    font-size: 3rem;
   }
 
   .work-page-hero p:not(.kicker) {
