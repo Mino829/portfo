@@ -129,9 +129,9 @@ function HomeHero() {
         <strong>MINO / CREATIVE DEVELOPER</strong>
         <p>企画からビジュアル制作、実装、展示まで。領域をまたいで体験をかたちにする。</p>
         <b>
-          NOTION
+          OPEN TO
           <br />
-          MANAGED
+          CAREER TALKS
         </b>
       </div>
     </section>
