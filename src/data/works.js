@@ -150,6 +150,65 @@ export const works = [
       "カメラの装飾で、来場者がのぞくきっかけを設計。",
       "TouchDesignerとOpenCVでインタラクティブな仕組みを構築。"
     ]
+  },
+  {
+    "id": "06",
+    "slug": "handpipe",
+    "title": "Handpipe",
+    "category": "app",
+    "type": "BUILD",
+    "stack": [
+      "Next.js",
+      "TypeScript",
+      "MediaPipe",
+      "Interaction"
+    ],
+    "summary": "カメラで検出した手の動きで、カーソル・クリック・スクロール・前後移動を行うブラウザ操作のMVP。",
+    "role": "企画、インタラクション設計、フロントエンド実装",
+    "year": "2026",
+    "status": "In progress",
+    "links": {
+      "demo": "",
+      "github": "https://github.com/Mino829/handpipe",
+      "figma": ""
+    },
+    "thumbnail": "/images/works/handpipe.png",
+    "images": [],
+    "points": [
+      "MediaPipe Tasks Visionで手の特徴点をブラウザ内で検出。",
+      "人差し指の移動、ピンチ、手の上下移動、スワイプを操作へ割り当て。",
+      "感度調整と認識状態の表示を備えた操作画面を実装。"
+    ]
+  },
+  {
+    "id": "07",
+    "slug": "umlgen",
+    "title": "umlgen",
+    "category": "app",
+    "type": "BUILD",
+    "stack": [
+      "Go",
+      "Tree-sitter",
+      "PlantUML"
+    ],
+    "summary": "JavaとGoのソースコードをローカルで解析し、編集可能なクラス図を生成するCLI。変更差分や注目する型の可視化にも対応。",
+    "role": "CLI設計・実装、解析処理、テスト、CI",
+    "year": "2026",
+    "status": "Published",
+    "links": {
+      "demo": "",
+      "github": "https://github.com/Mino829/umlgen",
+      "figma": ""
+    },
+    "thumbnail": "/images/works/umlgen-diagram.svg",
+    "images": [
+      "/images/works/umlgen-diff.svg"
+    ],
+    "points": [
+      "JavaはTree-sitter、Goは標準ASTで型と関係を抽出。",
+      "PlantUMLとSVGを出力し、対象型の絞り込みやGit差分の色分けに対応。",
+      "Pull Request向けの差分図生成ワークフローを公開。"
+    ]
   }
 ];
 

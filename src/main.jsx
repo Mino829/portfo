@@ -173,7 +173,7 @@ function WorksSection({ initialCategory }) {
         </h2>
         <div>
           <p>
-            インタラクティブ展示、グラフィック、Web。それぞれの作品に、制作意図と担当範囲を記録する。
+            インタラクティブ展示、グラフィック、ソフトウェア。それぞれの作品に、制作意図と担当範囲を記録する。
           </p>
           <CategoryNav category={category} onChange={setCategory} />
         </div>
@@ -252,6 +252,10 @@ function WorkPreview({ work }) {
 }
 
 function WorkPage({ work }) {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [work.slug]);
+
   return (
     <section className="work-page section">
       <a className="back-link" href="#/works">
