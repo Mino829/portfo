@@ -67,9 +67,15 @@ h1,
 h2,
 h3 {
   letter-spacing: -0.045em;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 p {
   line-height: 1.7;
+}
+.cms-text {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
 }
 .container {
   width: min(100% - 112px, 1296px);
@@ -461,6 +467,7 @@ p {
 }
 .contact-links {
   display: flex;
+  flex-wrap: wrap;
   gap: 28px;
 }
 .contact-links a {

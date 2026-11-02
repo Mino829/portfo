@@ -943,26 +943,3 @@ export const works = [
     "body": []
   }
 ];
-
-export const credits = [
-  [
-    "ROLE",
-    "Creative Technologist / Visual & Interactive Director"
-  ],
-  [
-    "STACK",
-    "TouchDesigner, Unreal Engine 5, Blender, React, TypeScript, Go"
-  ],
-  [
-    "DESIGN",
-    "3D CG, 映像, インタラクティブ表現, グラフィック"
-  ],
-  [
-    "METHOD",
-    "企画, プロトタイピング, 実装, 展示"
-  ],
-  [
-    "VOICE",
-    "視覚表現と技術実装を横断し、体験をかたちにする。"
-  ]
-];

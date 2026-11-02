@@ -1,6 +1,6 @@
 # Mino Portfolio Site
 
-React 19 + Vite 7 portfolio, with Notion as the existing content source. Cloudflare Pages receives static builds through GitHub Actions. The existing Vercel environment remains available; this setup does not change DNS or delete deployments. The existing Notion database is preserved, with only the owner-approved additive `Featured` checkbox.
+React 19 + Vite 7 portfolio, with Notion as the content source for works, Home, About, Practice, and Contact. Cloudflare Pages receives static builds through GitHub Actions. The existing Portfolio Works database and work content are preserved. The owner-approved Site Content database lives inside a nonpublic management page; this setup does not change DNS or delete deployments.
 
 ## Local development and production builds
 
@@ -9,25 +9,25 @@ Use Node.js 22 and the committed lockfile:
 ```bash
 npm ci
 cp .env.example .env
-# Fill NOTION_TOKEN and NOTION_DATABASE_ID privately in .env.
+# Fill NOTION_TOKEN, NOTION_DATABASE_ID, and NOTION_SITE_DATABASE_ID privately in .env.
 npm run build
 npm run dev -- --port 5173
 ```
 
-`npm run build` first synchronizes published Notion content, then runs Vite and writes `dist/`. Missing credentials, a rejected Notion request, or a failed required media download must fail the build rather than silently publish stale generated content. `npm run sync:notion` runs only the content synchronization. The browser never calls Notion; local development uses the last generated `src/data/works.js` until the next sync.
+`npm run build` first synchronizes published Notion content, then runs Vite and writes `dist/`. Missing credentials, a rejected Notion request, or a failed required media download fail the build rather than silently publish stale generated content. `npm run sync:notion` runs only synchronization. The browser never calls Notion; local development uses the last generated `src/data/works.js` and `src/data/site.js` until the next sync. `vite.config.js` also generates the initial HTML title/description from the published site identity.
 
 Keep `.env` private and untracked. Never add credentials to `VITE_*` variables, `public/`, generated content, logs, or client code: Vite exposes `VITE_*` values to visitors. Published Notion titles, text, links, and media become public static assets, so do not publish private information in these fields or page bodies.
 
 ## Notion publishing contract
 
-The integration needs read access to the existing database and its pages, not permission to change the schema. Only `Published = true` records are published, in `Order` order. Unpublish a record and wait for a successful deployment to remove it from the current site; previous deployment URLs may still contain previously public content.
+Normal builds need read access to Portfolio Works, Site Content, and their child pages, not permission to alter schemas. Only `Published = true` records are published, in `Order` order; unset order values appear last. Unpublish an optional record and wait for a successful deployment to remove it from the current site; previous deployment URLs may still contain previously public content.
 
 | Property | Existing type / values |
 | --- | --- |
 | Name | title |
 | Slug | rich_text; a unique URL slug |
 | Order | number |
-| Category | select: `app`, `design`, `web`, `experiment` |
+| Category | select: `app`, `design`, `web`, `experiment`, `Lab` |
 | Type | select: `CASE STUDY`, `PROCESS`, `BUILD`, `EXPERIMENT` |
 | Stack | multi_select |
 | Summary, Role, Year | rich_text |
@@ -47,6 +47,43 @@ On 2026-11-02, the owner approved adding the `Featured` checkbox to the existing
 ### Images and expiring Notion URLs
 
 Existing paths such as `/images/works/example.jpg` continue to refer to files in `public/images/works/`. Stable external image URLs can remain external. Expiring Notion-hosted media is downloaded during synchronization into `public/images/notion/`, and generated data uses stable local `/images/notion/...` paths. Visitors therefore do not depend on a signed Notion URL remaining valid after deployment. Keep this generated media available until Vite copies it into `dist/`; do not deploy generated data without its matching media. A fresh sync obtains fresh signed source URLs before downloading.
+
+## Site Content — Home, About, Practice, Contact
+
+Edit [サイト設定](https://app.notion.com/p/40c07820ded981dd96d1ff9af8cb2ecd) → [Site Content](https://app.notion.com/p/40c07820ded981928517cd3c989d489b). The management page also contains Japanese editing instructions. It was added as an **unpublished** page inside Portfolio Works because the existing integration has no separate accessible parent page. Keep that management page's own `Published` checkbox off: it is not a portfolio work.
+
+The existing public copy was migrated into 15 records; there is no hardcoded fallback copy. `Name` and `Section` help organize editing, while `Key` is the stable connection identifier and must not be renamed.
+
+| Key | Editable content |
+| --- | --- |
+| `site.identity` | Site name, footer role, default SEO description/title |
+| `home.hero` | Home headline, edition label, main copy, aside |
+| `home.about` | Home About headline, introduction, signature, link label |
+| `practice.intro` | Shared Practice heading and introduction |
+| `practice.engineering`, `practice.creative` | Practice headings, descriptions, technology text, link labels |
+| `about.intro` | About headline, short intro, detailed intro, optional page-body blocks |
+| `about.credit.*` | Profile/skills rows; additional published keys appear automatically |
+| `contact.intro` | Contact heading and introductory copy |
+| `contact.*` except `contact.intro` | Social/contact links; additional published keys appear automatically |
+
+| Property | Editing rule |
+| --- | --- |
+| `Name` | Human-readable management name; title |
+| `Section` | Select `Site`, `Home`, `Practice`, `About`, or `Contact` |
+| `Key` | Stable unique rich-text identifier; do not change existing keys |
+| `Heading`, `Label` | Main heading and small label; rich text |
+| `Text`, `Detail` | Main copy and supporting copy; rich text |
+| `LinkLabel` | Text for the built-in section link; its internal route stays in code |
+| `URL` | Actual external HTTP(S) destination for a contact link |
+| `Order` | Display order; number, unset values last |
+| `Published` | Only checked records are included in generated public content |
+
+Newlines in text fields are preserved. Open `about.intro` as a Notion page to add supplemental headings, paragraphs, lists, images, or code blocks. Contact links use `Heading` (or `Label`) as their visible name. To add a link, use a unique `contact.*` key, `Section = Contact`, a valid `URL`, and `Published = true`. To add a skills row, use a unique `about.credit.*` key, `Section = About`, `Label`, `Text`, and `Published = true`.
+
+`site.identity`, `home.hero`, and `about.intro` are required published records with nonblank headings. Deleting/unpublishing them, duplicating a key, or breaking the schema fails the build and leaves the current production deployment serving. Unpublishing other records hides their corresponding optional section/row/link. The same sync validates both databases before replacing generated content; it does not publish a partial API response.
+
+The runtime and build use `NOTION_SITE_DATABASE_ID` for this child database. The value is configured in the local private `.env` and GitHub Secrets, never in `VITE_*`. Cloudflare serves static assets and needs no runtime Notion secret. Any other build host, including Vercel, also needs this new build variable before it can rebuild the expanded CMS; the existing Vercel deployment has not been deleted.
+
 
 ## Cloudflare Pages + GitHub continuous deployment
 
@@ -82,6 +119,7 @@ Scheduled jobs run from the default branch and may be delayed or skipped by GitH
    | `CLOUDFLARE_ACCOUNT_ID` | The selected account ID from the Cloudflare dashboard |
    | `NOTION_TOKEN` | Existing Notion integration with read access to the content database/pages |
    | `NOTION_DATABASE_ID` | Existing database ID; do not create a replacement database |
+   | `NOTION_SITE_DATABASE_ID` | The approved Site Content child database ID |
 
    The workflow's GitHub token has only `contents: read`. Notion secrets are passed to the build step; Cloudflare credentials are passed only to the pinned Wrangler upload command. Secret-presence checks print names only. No secret values belong in workflow YAML, this README, or shell command arguments.
 
@@ -147,3 +185,7 @@ Regression coverage protects publication gating, pagination, duplicate slugs, ex
 Production Pages URL: **https://portfo-e55.pages.dev/**. The first verified deployment is [f3831b34](https://f3831b34.portfo-e55.pages.dev/). HTTP checks confirmed Home/list/detail/About/Lab and an existing image return 200 over HTTPS; unrelated unknown URLs and `.env` return 404; trailing-slash listing routes redirect canonically. Unknown work slugs show the client not-found page with the static HTTP-200 limitation described above.
 
 GitHub push-triggered continuous deployment was exercised successfully: [Actions run 41393749105](https://github.com/Mino829/portfo/actions/runs/41393749105) completed lint, all 4 regression tests, real Notion sync, production build, and Pages deployment. Its production snapshot is [a8615324](https://a8615324.portfo-e55.pages.dev/). The workflow now uses Node-24-based checkout/setup actions and the pinned Wrangler CLI directly, avoiding the Node-20 action-runtime deprecation.
+
+### Expanded CMS verification
+
+The expanded CMS passed lint, all 14 regression tests, and a production build using 7 real published works plus 15 real Site Content records. A newly created Hero label was temporarily changed in Notion, synchronized, observed in the running UI, and restored to its original value before publication; existing work pages were not changed. Home, About, Work, and Lab were exercised at 320/390/1440px with no horizontal overflow and reduced motion enabled. An unbroken long heading was also checked before/after the wrapping fix. Static metadata escaping was exercised with HTML-like CMS input: the DOM retained literal text and created neither a script element nor an injected event attribute.

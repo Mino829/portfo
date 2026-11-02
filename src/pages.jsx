@@ -1,23 +1,25 @@
 import React from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { works, credits } from "./data/works.js";
+import { works } from "./data/works.js";
+import { siteContent } from "./data/site.js";
 import { categoryLabel, routeForWork } from "./lib/routes.js";
 import { WorkCard, WorkImage, SectionLabel } from "./components/Work.jsx";
 import { NotionBody } from "./components/NotionBody.jsx";
+import { ContentHeading } from "./components/ContentHeading.jsx";
 
 export function Home() {
   const featured = works.filter((work) => work.featured);
   const selected = (featured.length ? featured : works).slice(0, 3);
   const lead = selected[0];
+  const identity = siteContent["site.identity"];
+  const hero = siteContent["home.hero"];
+  const about = siteContent["home.about"];
   return (
     <>
       <section className="hero container">
         <div className="hero-title">
-          <h1>
-            <span>DESIGNING</span>
-            <span>
-              SYSTEMS<span className="accent-dot">.</span>
-            </span>
+          <h1 aria-label={hero.heading.replace(/\s+/g, " ")}>
+            <ContentHeading text={hero.heading} animated accentDot />
           </h1>
           <div className="hero-mark" aria-hidden="true">
             <span />
@@ -25,18 +27,12 @@ export function Home() {
         </div>
         <div className="hero-bottom">
           <div>
-            <p className="eyebrow">VOL. 01 / PORTFOLIO 2026</p>
-            <p className="hero-statement">
-              Engineering, visual narratives,
-              <br />
-              and everything between.
-            </p>
+            {hero.label && <p className="eyebrow cms-text">{hero.label}</p>}
+            {hero.text && (
+              <p className="hero-statement cms-text">{hero.text}</p>
+            )}
           </div>
-          <p className="hero-aside">
-            構造を考える。体験をつくる。
-            <br />
-            Engineering × Creative Expression
-          </p>
+          {hero.detail && <p className="hero-aside cms-text">{hero.detail}</p>}
         </div>
       </section>
       <section
@@ -90,89 +86,98 @@ export function Home() {
           </Link>
         ))}
         <div className="folio">
-          <span>MINO — ENGINEER / CREATOR</span>
+          <span className="cms-text">
+            {identity.heading}
+            {identity.label && ` — ${identity.label}`}
+          </span>
           <span>01 / 04</span>
         </div>
       </section>
       <Practice />
-      <section className="container about-section">
-        <SectionLabel number="03">ABOUT</SectionLabel>
-        <h2 className="section-heading">
-          NOT JUST
-          <br />
-          WHAT I MAKE.
-          <br />
-          WHY I MAKE IT.
-        </h2>
-        <div className="about-copy">
-          <p>
-            ソフトウェアの構造と、インタラクティブな体験。その両方から、ものづくりを考えています。企画、プロトタイピング、実装、展示まで、技術と視覚表現を横断して体験をかたちにします。
-          </p>
-          <Link className="text-link" to="/about">
-            MORE ABOUT ME ↗
-          </Link>
-        </div>
-        <div className="signature">
-          <span />
-          MINO / ENGINEER & CREATOR
-        </div>
-      </section>
+      {about && (
+        <section className="container about-section">
+          {about.label && (
+            <SectionLabel number="03">
+              <span className="cms-text">{about.label}</span>
+            </SectionLabel>
+          )}
+          {about.heading && (
+            <h2 className="section-heading">
+              <ContentHeading text={about.heading} />
+            </h2>
+          )}
+          {(about.text || about.linkLabel) && (
+            <div className="about-copy">
+              {about.text && <p className="cms-text">{about.text}</p>}
+              {about.linkLabel && (
+                <Link className="text-link cms-text" to="/about">
+                  {about.linkLabel} ↗
+                </Link>
+              )}
+            </div>
+          )}
+          {about.detail && (
+            <div className="signature cms-text">
+              <span />
+              {about.detail}
+            </div>
+          )}
+        </section>
+      )}
     </>
   );
 }
 
 export function Practice() {
+  const intro = siteContent["practice.intro"];
+  const cards = [
+    ["practice.engineering", "engineering", "/work?category=app"],
+    ["practice.creative", "creative", "/work?category=design"],
+  ].filter(([key]) => siteContent[key]);
+  if (!intro && cards.length === 0) return null;
   return (
     <section className="container practice-section">
-      <SectionLabel number="02">PRACTICE</SectionLabel>
-      <h2 className="section-heading">
-        TWO DISCIPLINES.
-        <br />
-        ONE APPROACH.
-      </h2>
-      <p className="section-deck">
-        I build the systems behind experiences — and shape the experiences
-        around systems.
-      </p>
-      <div className="practice-grid">
-        <article className="practice-card engineering">
-          <p className="eyebrow">01 / ENGINEERING</p>
-          <h3>
-            STRUCTURE
-            <br />& SYSTEMS.
-          </h3>
-          <p className="eyebrow">
-            GO / REACT / TYPESCRIPT
-            <br />
-            PARSING / ARCHITECTURE
-          </p>
-          <p>
-            仕組みを理解し、構造を設計する。ソースコードの解析からWebアプリケーションまで、実装を通じて考える。
-          </p>
-          <Link className="text-link" to="/work?category=app">
-            EXPLORE ENGINEERING ↗
-          </Link>
-        </article>
-        <article className="practice-card creative">
-          <p className="eyebrow">02 / CREATIVE TECHNOLOGY</p>
-          <h3>
-            IDEAS INTO
-            <br />
-            EXPERIENCE.
-          </h3>
-          <p className="eyebrow">
-            INTERACTIVE ART / VISUALS / 3D
-            <br />
-            TOUCHDESIGNER / BLENDER / UNREAL ENGINE
-          </p>
-          <p>
-            映像、空間、人の動き。計算と表現をつなぎ、見る人が参加できる体験を探る。
-          </p>
-          <Link className="text-link" to="/work?category=design">
-            EXPLORE CREATIVE ↗
-          </Link>
-        </article>
-      </div>
+      {intro && (
+        <>
+          {intro.label && (
+            <SectionLabel number="02">
+              <span className="cms-text">{intro.label}</span>
+            </SectionLabel>
+          )}
+          {intro.heading && (
+            <h2 className="section-heading">
+              <ContentHeading text={intro.heading} />
+            </h2>
+          )}
+          {intro.text && <p className="section-deck cms-text">{intro.text}</p>}
+        </>
+      )}
+      {cards.length > 0 && (
+        <div className="practice-grid">
+          {cards.map(([key, className, destination]) => {
+            const card = siteContent[key];
+            return (
+              <article key={key} className={`practice-card ${className}`}>
+                {card.label && <p className="eyebrow cms-text">{card.label}</p>}
+                {card.heading && (
+                  <h3>
+                    <ContentHeading text={card.heading} />
+                  </h3>
+                )}
+                {card.detail && (
+                  <p className="eyebrow cms-text">{card.detail}</p>
+                )}
+                {card.text && <p className="cms-text">{card.text}</p>}
+                {card.linkLabel && (
+                  <Link className="text-link cms-text" to={destination}>
+                    {card.linkLabel} ↗
+                  </Link>
+                )}
+              </article>
+            );
+          })}
+        </div>
+      )}
     </section>
   );
 }
@@ -194,8 +199,8 @@ export function WorkIndex() {
           <br />
           WORKS<span className="accent-dot">.</span>
         </h1>
-        <p>
-          Engineering × Creative Expression
+        <p className="cms-text">
+          {siteContent["site.identity"].detail}
           <br />
           制作の意図と、実装の記録。
         </p>
@@ -344,30 +349,39 @@ export function WorkDetail() {
 }
 
 export function About() {
+  const intro = siteContent["about.intro"];
+  const credits = Object.values(siteContent).filter((row) =>
+    row.key.startsWith("about.credit."),
+  );
   return (
     <section className="container page-section about-page">
-      <SectionLabel number="03">PROFILE / PRACTICE</SectionLabel>
+      {intro.label && (
+        <SectionLabel number="03">
+          <span className="cms-text">{intro.label}</span>
+        </SectionLabel>
+      )}
       <h1>
-        ENGINEER.
-        <br />
-        CREATOR<span className="accent-dot">.</span>
+        <ContentHeading text={intro.heading} accentDot />
       </h1>
-      <p className="about-intro">
-        技術と視覚表現を横断し、
-        <br />
-        体験をかたちにする。
-      </p>
-      <p className="about-description">
-        MINO。Webアプリケーション、CLI、インタラクティブ展示、グラフィックを制作。企画からプロトタイピング、ビジュアル制作、実装、展示まで、制作の意図と仕組みを一つの体験につなげます。
-      </p>
-      <dl className="credit-list">
-        {credits.map(([label, value]) => (
-          <div key={label}>
-            <dt className="eyebrow">{label}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
-      </dl>
+      {intro.text && <p className="about-intro cms-text">{intro.text}</p>}
+      {intro.detail && (
+        <p className="about-description cms-text">{intro.detail}</p>
+      )}
+      {intro.body?.length > 0 && (
+        <div className="notion-body">
+          <NotionBody blocks={intro.body} />
+        </div>
+      )}
+      {credits.length > 0 && (
+        <dl className="credit-list">
+          {credits.map((credit) => (
+            <div key={credit.key}>
+              <dt className="eyebrow cms-text">{credit.label}</dt>
+              <dd className="cms-text">{credit.text}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
       <Practice />
     </section>
   );
@@ -376,9 +390,8 @@ export function About() {
 export function Lab() {
   const experiments = works.filter(
     (work) =>
-      work.category === "experiment" ||
-      work.category.toLowerCase() === "research" ||
-      work.type === "EXPERIMENT",
+      ["lab", "experiment", "research"].includes(work.category.toLowerCase()) ||
+      work.type.toLowerCase() === "experiment",
   );
   return (
     <section className="container page-section lab-page">

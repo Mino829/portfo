@@ -5,15 +5,17 @@ import path from "node:path";
 const NOTION_VERSION = "2022-06-28";
 const token = process.env.NOTION_TOKEN;
 const databaseId = process.env.NOTION_DATABASE_ID;
+const siteDatabaseId = process.env.NOTION_SITE_DATABASE_ID;
 const outFile = path.resolve("src/data/works.js");
+const siteOutFile = path.resolve("src/data/site.js");
 const mediaDirectory = path.resolve("public/images/notion");
 const downloadedMedia = new Map();
 const stagedMedia = new Set();
 let stagingDirectory;
 
-if (!token || !databaseId) {
+if (!token || !databaseId || !siteDatabaseId) {
   throw new Error(
-    "Missing NOTION_TOKEN or NOTION_DATABASE_ID. See .env.example for the required values.",
+    "Missing NOTION_TOKEN, NOTION_DATABASE_ID, or NOTION_SITE_DATABASE_ID. See .env.example for the required values.",
   );
 }
 
@@ -26,6 +28,28 @@ try {
     );
   }
 
+  const siteDatabase = await notion(
+    `databases/${encodeURIComponent(siteDatabaseId)}`,
+  );
+  const sitePropertyTypes = {
+    Name: "title",
+    Section: "select",
+    Key: "rich_text",
+    Heading: "rich_text",
+    Label: "rich_text",
+    Text: "rich_text",
+    Detail: "rich_text",
+    LinkLabel: "rich_text",
+    URL: "url",
+    Order: "number",
+    Published: "checkbox",
+  };
+  for (const [name, type] of Object.entries(sitePropertyTypes)) {
+    if (siteDatabase.properties?.[name]?.type !== type) {
+      throw new Error(`Site Content property ${name} must have type ${type}.`);
+    }
+  }
+
   const pages = await paginate(
     `databases/${encodeURIComponent(databaseId)}/query`,
     {
@@ -33,15 +57,85 @@ try {
       filter: { property: "Published", checkbox: { equals: true } },
     },
   );
-  if (pages.some((page) => page.properties?.Published?.checkbox !== true)) {
-    throw new Error(
-      "Notion returned an unpublished page; refusing to generate public data.",
-    );
-  }
-  pages.sort((a, b) => {
-    const difference = orderOf(a) - orderOf(b);
-    return (Number.isNaN(difference) ? 0 : difference) || compare(a.id, b.id);
+  assertPublished(pages);
+  pages.sort(comparePages);
+  const sitePages = await paginate(
+    `databases/${encodeURIComponent(siteDatabaseId)}/query`,
+    {
+      sorts: [{ property: "Order", direction: "ascending" }],
+      filter: { property: "Published", checkbox: { equals: true } },
+    },
+  );
+  assertPublished(sitePages);
+  sitePages.sort(comparePages);
+  const siteKeys = new Set();
+  const siteSections = new Set([
+    "Site",
+    "Home",
+    "Practice",
+    "About",
+    "Contact",
+  ]);
+  const siteEntries = sitePages.map((page) => {
+    const props = page.properties;
+    for (const [name, type] of Object.entries(sitePropertyTypes)) {
+      const property = props[name];
+      if (
+        property?.type !== type ||
+        (["title", "rich_text"].includes(type) &&
+          (!Array.isArray(property[type]) ||
+            property[type].some(
+              (item) =>
+                typeof (item.plain_text ?? item.text?.content) !== "string",
+            ))) ||
+        (type === "checkbox" && typeof property.checkbox !== "boolean") ||
+        (type === "number" &&
+          property.number !== null &&
+          !Number.isFinite(property.number)) ||
+        (type === "url" &&
+          property.url !== null &&
+          typeof property.url !== "string")
+      ) {
+        throw new Error(`Invalid Site Content property ${name}.`);
+      }
+    }
+    const key = readText(props.Key).trim();
+    if (!key || siteKeys.has(key)) {
+      throw new Error(
+        "Published Site Content must have nonempty, unique Keys.",
+      );
+    }
+    siteKeys.add(key);
+    const section = readSelect(props.Section);
+    if (!siteSections.has(section)) {
+      throw new Error("Published Site Content must have a valid Section.");
+    }
+    return {
+      page,
+      content: {
+        key,
+        section,
+        heading: readText(props.Heading),
+        label: readText(props.Label),
+        text: readText(props.Text),
+        detail: readText(props.Detail),
+        linkLabel: readText(props.LinkLabel),
+        url: safeExternalUrl(props.URL.url),
+        order: props.Order.number,
+        body: [],
+      },
+    };
   });
+  const siteContent = Object.fromEntries(
+    siteEntries.map(({ content }) => [content.key, content]),
+  );
+  for (const key of ["site.identity", "home.hero", "about.intro"]) {
+    if (!Object.hasOwn(siteContent, key) || !siteContent[key].heading.trim()) {
+      throw new Error(
+        `Required Site Content ${key} needs a published heading.`,
+      );
+    }
+  }
 
   const slugs = new Set();
   const entries = pages.map((page, index) => {
@@ -94,6 +188,9 @@ try {
     work.images = await readImages(page.properties.Images);
     work.body = await readBlocks(page.id);
   }
+  for (const { page, content } of siteEntries) {
+    content.body = await readBlocks(page.id);
+  }
   const works = entries.map(({ work }) => work);
   const categories = [
     { id: "all", label: "ALL", route: "/work" },
@@ -105,16 +202,12 @@ try {
         route: `/work?category=${encodeURIComponent(id)}`,
       })),
   ];
-  const credits = [
-    ["ROLE", "Creative Technologist / Visual & Interactive Director"],
-    ["STACK", "TouchDesigner, Unreal Engine 5, Blender, React, TypeScript, Go"],
-    ["DESIGN", "3D CG, 映像, インタラクティブ表現, グラフィック"],
-    ["METHOD", "企画, プロトタイピング, 実装, 展示"],
-    ["VOICE", "視覚表現と技術実装を横断し、体験をかたちにする。"],
-  ];
-  const output = `export const categories = ${JSON.stringify(categories, null, 2)};\n\nexport const works = ${JSON.stringify(works, null, 2)};\n\nexport const credits = ${JSON.stringify(credits, null, 2)};\n`;
+  const output = `export const categories = ${JSON.stringify(categories, null, 2)};\n\nexport const works = ${JSON.stringify(works, null, 2)};\n`;
+  const siteOutput = `export const siteContent = Object.fromEntries(${JSON.stringify(Object.entries(siteContent), null, 2)});\n`;
   const stagedOutput = path.join(stagingDirectory, "works.js");
+  const stagedSiteOutput = path.join(stagingDirectory, "site.js");
   await writeFile(stagedOutput, output);
+  await writeFile(stagedSiteOutput, siteOutput);
   if (stagedMedia.size > 0) {
     await mkdir(mediaDirectory, { recursive: true });
     for (const name of stagedMedia) {
@@ -126,7 +219,10 @@ try {
   }
   await mkdir(path.dirname(outFile), { recursive: true });
   await rename(stagedOutput, outFile);
-  console.log(`Synced ${works.length} published works from Notion.`);
+  await rename(stagedSiteOutput, siteOutFile);
+  console.log(
+    `Synced ${works.length} published works and ${siteEntries.length} Site Content records from Notion.`,
+  );
 } finally {
   if (stagingDirectory)
     await rm(stagingDirectory, { recursive: true, force: true });
@@ -261,6 +357,18 @@ function readText(property) {
 
 function readSelect(property) {
   return property?.select?.name ?? "";
+}
+function assertPublished(pages) {
+  if (pages.some((page) => page.properties?.Published?.checkbox !== true)) {
+    throw new Error(
+      "Notion returned an unpublished page; refusing to generate public data.",
+    );
+  }
+}
+
+function comparePages(a, b) {
+  const difference = orderOf(a) - orderOf(b);
+  return (Number.isNaN(difference) ? 0 : difference) || compare(a.id, b.id);
 }
 
 function orderOf(page) {
