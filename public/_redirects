@@ -1,0 +1,9 @@
+# Keep this list aligned with the client router. Do not use a catch-all SPA rewrite.
+/work / 200
+/work/ /work 301
+/about / 200
+/about/ /about 301
+/lab / 200
+/lab/ /lab 301
+/work/:slug / 200
+/work/:slug/ /work/:slug 301

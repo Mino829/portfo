@@ -1,34 +1,23 @@
-export function getRoute(hash) {
-  const value = hash.replace(/^#/, "") || "/";
-  const segments = value.split("/").filter(Boolean);
-
-  if (segments[0] === "works" && segments[1]) {
-    return {
-      view: "detail",
-      slug: normalizeSlug(decodeURIComponent(segments[1])),
-      category: "all",
-    };
-  }
-
-  if (segments[0] === "apps") {
-    return { view: "archive", slug: null, category: "app" };
-  }
-
-  if (segments[0] === "design") {
-    return { view: "archive", slug: null, category: "design" };
-  }
-
-  if (segments[0] === "works") {
-    return { view: "archive", slug: null, category: "all" };
-  }
-
-  return { view: "home", slug: null, category: "all" };
-}
+export const categoryLabel = (category) =>
+  ({
+    app: "Engineering",
+    design: "Creative",
+    web: "Web",
+    experiment: "Experiments",
+  })[category] || category;
 
 export function routeForWork(work) {
-  return `#/works/${encodeURIComponent(normalizeSlug(work.slug))}`;
+  return `/work/${encodeURIComponent(work.slug)}`;
 }
 
-export function normalizeSlug(value = "") {
-  return String(value).trim().toLowerCase();
+// Keep externally shared bookmarks working while all new links use clean URLs.
+export function legacyPath(hash) {
+  if (!hash.startsWith("#/")) return null;
+  const [path, query = ""] = hash.slice(1).split("?");
+  if (path === "/") return "/";
+  if (path === "/apps") return "/work?category=app";
+  if (path === "/design") return "/work?category=design";
+  if (path === "/works") return `/work${query ? `?${query}` : ""}`;
+  if (path.startsWith("/works/")) return `/work/${path.slice(7)}`;
+  return path;
 }

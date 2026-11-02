@@ -5,15 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "vite build",
+    "build": "npm run sync:notion && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "sync:notion": "node scripts/sync-notion.mjs"
+    "sync:notion": "node --env-file-if-exists=.env scripts/sync-notion.mjs",
+    "lint": "eslint .",
+    "test": "node --test"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^5.0.0",
-    "vite": "^7.0.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.18.5",
+    "vite": "^7.0.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.14.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0"
+  }
 }
