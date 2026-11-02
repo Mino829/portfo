@@ -187,11 +187,10 @@ p {
 }
 .hero h1 > span {
   display: block;
-  overflow: clip;
-  animation: title-reveal 850ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: title-reveal 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .hero h1 > span:nth-child(2) {
-  animation-delay: 100ms;
+  animation-delay: 40ms;
 }
 .hero-mark {
   flex: 0 0 16.5%;
@@ -839,11 +838,9 @@ dd {
 }
 @keyframes title-reveal {
   from {
-    clip-path: inset(100% 0 0);
-    transform: translateY(28px);
+    transform: translateY(12px);
   }
   to {
-    clip-path: inset(0);
     transform: none;
   }
 }

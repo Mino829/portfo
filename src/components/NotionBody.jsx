@@ -1,4 +1,5 @@
 import React from "react";
+import { ResponsiveImage } from "./ResponsiveImage.jsx";
 
 function RichText({ spans = [] }) {
   return spans.map((span, index) => {
@@ -106,7 +107,7 @@ function Block({ block }) {
     case "image":
       return block.url ? (
         <figure className="notion-image">
-          <img
+          <ResponsiveImage
             src={block.url}
             alt={
               block.caption?.map((span) => span.text).join("") ||

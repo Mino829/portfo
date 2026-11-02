@@ -9,6 +9,7 @@ export default [
       "node_modules/**",
       "src/data/works.js",
       ".wrangler/**",
+      ".prerender-*/**",
     ],
   },
   js.configs.recommended,

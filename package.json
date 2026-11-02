@@ -4,10 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
-    "build": "npm run sync:notion && vite build",
+    "dev": "npm run optimize:images && vite --host 127.0.0.1",
+    "build": "npm run sync:notion && npm run optimize:images && vite build && npm run prerender",
     "preview": "vite preview --host 127.0.0.1",
     "sync:notion": "node --env-file-if-exists=.env scripts/sync-notion.mjs",
+    "optimize:images": "node scripts/optimize-images.mjs",
+    "prerender": "node scripts/prerender.mjs",
     "lint": "eslint .",
     "test": "node --test"
   },
@@ -22,6 +24,7 @@
     "@eslint/js": "^10.0.1",
     "eslint": "^10.14.0",
     "eslint-plugin-react-hooks": "^7.1.1",
-    "globals": "^17.14.0"
+    "globals": "^17.14.0",
+    "sharp": "^0.35.5"
   }
 }

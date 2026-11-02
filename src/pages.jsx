@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useSyncExternalStore } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { works } from "./data/works.js";
 import { siteContent } from "./data/site.js";
@@ -6,6 +6,15 @@ import { categoryLabel, routeForWork } from "./lib/routes.js";
 import { WorkCard, WorkImage, SectionLabel } from "./components/Work.jsx";
 import { NotionBody } from "./components/NotionBody.jsx";
 import { ContentHeading } from "./components/ContentHeading.jsx";
+import {
+  ResponsiveImage,
+  CONTENT_IMAGE_SIZES,
+  CARD_IMAGE_SIZES,
+} from "./components/ResponsiveImage.jsx";
+
+const subscribeToHydration = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 export function Home() {
   const featured = works.filter((work) => work.featured);
@@ -184,7 +193,14 @@ export function Practice() {
 
 export function WorkIndex() {
   const [params, setParams] = useSearchParams();
-  const category = params.get("category") || "all";
+  // Static HTML has no query string. Match it during hydration, then apply
+  // bookmarked filters without replacing the server-rendered page.
+  const hydrated = useSyncExternalStore(
+    subscribeToHydration,
+    clientSnapshot,
+    serverSnapshot,
+  );
+  const category = (hydrated && params.get("category")) || "all";
   const categories = [...new Set(works.map((work) => work.category))];
   const filtered =
     category === "all"
@@ -287,13 +303,14 @@ export function WorkDetail() {
         <section className="gallery" aria-label="作品ギャラリー">
           {work.images.map((image, index) => (
             <figure key={`${image}-${index}`}>
-              <img
+              <ResponsiveImage
                 src={image}
                 alt={`${work.title} — 制作資料 ${index + 1}`}
-                loading="lazy"
-                decoding="async"
-                width="1200"
-                height="800"
+                sizes={
+                  work.images.length === 1
+                    ? CONTENT_IMAGE_SIZES
+                    : CARD_IMAGE_SIZES
+                }
               />
             </figure>
           ))}

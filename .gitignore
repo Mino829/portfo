@@ -4,3 +4,5 @@ dist
 !.env.example
 .wrangler/
 .DS_Store
+public/images/optimized/
+.prerender-*/

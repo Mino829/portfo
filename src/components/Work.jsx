@@ -1,18 +1,24 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { categoryLabel, routeForWork } from "../lib/routes.js";
+import {
+  ResponsiveImage,
+  CARD_IMAGE_SIZES,
+  CONTENT_IMAGE_SIZES,
+} from "./ResponsiveImage.jsx";
 
 export function WorkImage({ work, priority = false, className = "" }) {
   return (
     <div className={`work-image ${className}`}>
       {work.thumbnail ? (
-        <img
+        <ResponsiveImage
           src={work.thumbnail}
           alt={`${work.title} — 作品ビジュアル`}
           width="1200"
           height="800"
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
+          sizes={priority ? CONTENT_IMAGE_SIZES : CARD_IMAGE_SIZES}
           decoding="async"
         />
       ) : (

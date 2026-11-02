@@ -19,37 +19,6 @@ export const categories = [
 export const works = [
   {
     "id": "01",
-    "slug": "portfolio-site",
-    "title": "Portfolio Site",
-    "category": "app",
-    "type": "CASE STUDY",
-    "stack": [
-      "React",
-      "Vite",
-      "Figma",
-      "Content Design"
-    ],
-    "summary": "就活用のポートフォリオを、作品主役の情報設計と強いアートディレクションで構成。",
-    "role": "Design direction, frontend implementation, content structure",
-    "year": "2026",
-    "status": "In progress",
-    "links": {
-      "demo": "",
-      "github": "https://github.com/Mino829/portfo",
-      "figma": "https://www.figma.com/design/NsCDLli3aVdxVDIqV33EXZ"
-    },
-    "thumbnail": "",
-    "images": [],
-    "points": [
-      "Works Firstの構成で、プロフィールより制作物を先に見せる。",
-      "Notionで作品情報を管理できるよう、データ層を分離。",
-      "PC/モバイル両方で編集的なタイポグリッドを維持。"
-    ],
-    "featured": false,
-    "body": []
-  },
-  {
-    "id": "02",
     "slug": "quad-reprojection",
     "title": "Quad Reprojection",
     "category": "design",
@@ -242,7 +211,7 @@ export const works = [
     ]
   },
   {
-    "id": "03",
+    "id": "02",
     "slug": "key-visual",
     "title": "NEWTONE 春ライブ | Key Visual",
     "category": "design",
@@ -471,6 +440,37 @@ export const works = [
         ]
       }
     ]
+  },
+  {
+    "id": "04",
+    "slug": "portfolio-site",
+    "title": "Portfolio Site",
+    "category": "app",
+    "type": "CASE STUDY",
+    "stack": [
+      "React",
+      "Vite",
+      "Figma",
+      "Content Design"
+    ],
+    "summary": "就活用のポートフォリオを、作品主役の情報設計と強いアートディレクションで構成。",
+    "role": "Design direction, frontend implementation, content structure",
+    "year": "2026",
+    "status": "In progress",
+    "links": {
+      "demo": "",
+      "github": "https://github.com/Mino829/portfo",
+      "figma": "https://www.figma.com/design/NsCDLli3aVdxVDIqV33EXZ"
+    },
+    "thumbnail": "",
+    "images": [],
+    "points": [
+      "Works Firstの構成で、プロフィールより制作物を先に見せる。",
+      "Notionで作品情報を管理できるよう、データ層を分離。",
+      "PC/モバイル両方で編集的なタイポグリッドを維持。"
+    ],
+    "featured": false,
+    "body": []
   },
   {
     "id": "04",

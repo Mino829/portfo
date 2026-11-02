@@ -14,7 +14,7 @@ npm run build
 npm run dev -- --port 5173
 ```
 
-`npm run build` first synchronizes published Notion content, then runs Vite and writes `dist/`. Missing credentials, a rejected Notion request, or a failed required media download fail the build rather than silently publish stale generated content. `npm run sync:notion` runs only synchronization. The browser never calls Notion; local development uses the last generated `src/data/works.js` and `src/data/site.js` until the next sync. `vite.config.js` also generates the initial HTML title/description from the published site identity.
+`npm run build` synchronizes published Notion content, generates responsive images, builds the Vite client, then prerenders every published route into `dist/`. Missing credentials, rejected API requests, or required media/encoding failures fail the build and leave the last deployed site serving. `npm run sync:notion` runs only synchronization; `npm run optimize:images` refreshes responsive images from the generated content snapshot. `npm run dev` optimizes that snapshot before starting Vite without fetching Notion. The browser never calls Notion. `vite.config.js` and shared route metadata generate escaped titles/descriptions from CMS content.
 
 Keep `.env` private and untracked. Never add credentials to `VITE_*` variables, `public/`, generated content, logs, or client code: Vite exposes `VITE_*` values to visitors. Published Notion titles, text, links, and media become public static assets, so do not publish private information in these fields or page bodies.
 
@@ -47,6 +47,10 @@ On 2026-11-02, the owner approved adding the `Featured` checkbox to the existing
 ### Images and expiring Notion URLs
 
 Existing paths such as `/images/works/example.jpg` continue to refer to files in `public/images/works/`. Stable external image URLs can remain external. Expiring Notion-hosted media is downloaded during synchronization into `public/images/notion/`, and generated data uses stable local `/images/notion/...` paths. Visitors therefore do not depend on a signed Notion URL remaining valid after deployment. Keep this generated media available until Vite copies it into `dist/`; do not deploy generated data without its matching media. A fresh sync obtains fresh signed source URLs before downloading.
+
+Local JPEG, PNG, static WebP, and AVIF images referenced by published content are converted at build time into WebP variants by Sharp. Widths are capped at 480/960/1600/2400px, include a smaller original width when applicable, and never upscale. `srcset`/`sizes` select a variant for the viewport; SVG, animation, video, and external URLs retain their originals. Source assets and Notion properties are not overwritten. Content-addressed optimized URLs include the source bytes and encoder settings/versions, so edits invalidate the browser cache safely.
+
+Generated variants live in ignored `public/images/optimized/`; `src/data/images.js` is the generated mapping used by React and prerendering. Do not hand-edit those outputs or deploy a mapping without its matching files. The normal build regenerates both, and the development command also generates local variants on a fresh checkout.
 
 ## Site Content — Home, About, Practice, Contact
 
@@ -137,13 +141,13 @@ Use the actual Pages URL returned by Cloudflare; do not assume that `portfo.page
 
 ### Routing and headers
 
-`public/_redirects` rewrites `/work`, `/about`, `/lab`, and `/work/:slug` to the application entry point; `/` serves the entry point directly. Trailing-slash versions redirect to their canonical paths. The client router handles navigation and legacy hash links.
+`scripts/prerender.mjs` renders the shared React application at build time into `dist/index.html`, `dist/work.html`, `dist/about.html`, `dist/lab.html`, and `dist/work/<slug>.html` for every published work. Cloudflare serves their clean URLs directly. No runtime SSR service or Function is used. Temporary server bundles are removed after generation. `public/_redirects` contains only canonical trailing-slash redirects; do not restore the old 200 proxies, which would override the route-specific HTML.
 
-The top-level `public/404.html` deliberately disables Cloudflare's blanket SPA fallback. Unrecognized URL paths and missing static assets receive a real HTTP 404. A nonexistent slug matching `/work/:slug` reaches React and shows its not-found UI **with HTTP 200**: a static rewrite cannot know which Notion slugs exist. A true 404 for those dynamic-looking slugs would require generated per-work HTML or request-time routing, neither of which this static setup claims to provide. Do not add a catch-all `/* /index.html 200` rewrite.
+The initial response includes real CMS content, not an empty application root. React hydrates it for filters and SPA navigation. Direct category-query URLs initially use the static unfiltered list and apply the bookmarked filter after hydration; legacy hash bookmarks also navigate after hydration to avoid mismatches. Copyright year is serialized with the HTML. Navigation and published content remain readable when page JavaScript is disabled, while interactive filtering requires JavaScript. `public/404.html` disables the blanket SPA fallback, so unknown paths, unknown work slugs, and missing assets receive actual HTTP 404 responses.
 
-`public/_headers` sets CSP, anti-framing, MIME sniffing protection, referrer policy, and disabled sensitive browser permissions. The CSP permits HTTPS images/media and inline styles, but not inline scripts or third-party embeds. Video embeds open as external links rather than loading third-party players automatically. Cloudflare's default asset caching is retained so updated CMS images are not pinned in browsers by an added immutable rule. These Pages-specific files do not alter Vercel's configuration.
+`public/_headers` sets CSP, anti-framing, MIME sniffing protection, referrer policy, and disabled sensitive browser permissions. The CSP permits HTTPS images/media and inline styles, but not inline scripts or third-party embeds. Video embeds open as external links. Hashed `/assets/*` and `/images/optimized/*` files use one-year immutable caching; HTML and original mutable image paths retain revalidation so CMS updates are not pinned to stale content.
 
-After deployment, check the root/listing pages, a real work detail direct URL and refresh, an unknown slug's client not-found state, an unrelated unknown URL's HTTP 404, security headers, and downloaded images. A local Vite preview does not emulate all Pages routing/header rules; use Pages or `wrangler pages dev dist` when checking those rules.
+After deployment, check direct page URLs and refresh, JavaScript-disabled content, query filters, legacy hash bookmarks, hydration errors, responsive image selection, unknown-path/slug HTTP 404, and cache/security headers. Vite preview does not emulate all Pages rules; use `wrangler pages dev dist` and the public Pages URL.
 
 ## Existing Vercel deployment — keep alive
 
@@ -182,10 +186,16 @@ npx wrangler@4.156.1 pages dev dist --port 8788
 
 Regression coverage protects publication gating, pagination, duplicate slugs, expiring-media snapshots, and unsafe links/paths. The real database sync published 7 works, including existing page bodies. Browser checks exercised category filters, detail navigation, legacy hash URLs, keyboard activation, and 320/390/768/1440px layouts without horizontal overflow. Reduced-motion mode ran with zero animations. The built browser assets were checked against the actual Notion token and contained no match.
 
-Production Pages URL: **https://portfo-e55.pages.dev/**. The first verified deployment is [f3831b34](https://f3831b34.portfo-e55.pages.dev/). HTTP checks confirmed Home/list/detail/About/Lab and an existing image return 200 over HTTPS; unrelated unknown URLs and `.env` return 404; trailing-slash listing routes redirect canonically. Unknown work slugs show the client not-found page with the static HTTP-200 limitation described above.
+Production Pages URL: **https://portfo-e55.pages.dev/**. The original verified deployment is [f3831b34](https://f3831b34.portfo-e55.pages.dev/). The current static route generation removes that initial deployment's unknown-work-slug HTTP-200 limitation; direct requests for unpublished or nonexistent work URLs now receive 404.
 
 GitHub push-triggered continuous deployment was exercised successfully: [Actions run 41393749105](https://github.com/Mino829/portfo/actions/runs/41393749105) completed lint, all 4 regression tests, real Notion sync, production build, and Pages deployment. Its production snapshot is [a8615324](https://a8615324.portfo-e55.pages.dev/). The workflow now uses Node-24-based checkout/setup actions and the pinned Wrangler CLI directly, avoiding the Node-20 action-runtime deprecation.
 
 ### Expanded CMS verification
 
 The expanded CMS passed lint, all 14 regression tests, and a production build using 7 real published works plus 15 real Site Content records. A newly created Hero label was temporarily changed in Notion, synchronized, observed in the running UI, and restored to its original value before publication; existing work pages were not changed. Home, About, Work, and Lab were exercised at 320/390/1440px with no horizontal overflow and reduced motion enabled. An unbroken long heading was also checked before/after the wrapping fix. Static metadata escaping was exercised with HTML-like CMS input: the DOM retained literal text and created neither a script element nor an injected event attribute.
+
+### Loading performance
+
+The loading investigation found JavaScript-gated initial content and an approximately 1.79MB pamphlet image served at full size. A cold-cache, 390×844, 1.6Mbps/4× CPU browser run transferred about 2.13MB on `/work/key-visual`; the pamphlet request alone took about 10.35 seconds. These are lab measurements, not guarantees for every connection.
+
+The fixes prerender CMS content before JavaScript, retain only a short transform-only title entrance instead of hiding the initial text, select responsive WebP images, and cache content-hashed assets immutably. The pamphlet's 480px variant is approximately 73KB while the original remains available unchanged. Local Pages smoke checks covered rendered content with page JavaScript disabled, hydration without console errors, direct query filters, old hash bookmarks, responsive image selection, and true unknown-work 404 responses. Lint, all 20 regression tests, the CMS sync, image optimization, client build, and route prerendering passed.
