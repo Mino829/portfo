@@ -1,6 +1,6 @@
 # Mino Portfolio Site
 
-React 19 + Vite 7 portfolio, with Notion as the existing content source. Cloudflare Pages receives static builds through GitHub Actions. The existing Vercel environment remains available; this setup does not change DNS, delete deployments, or alter the Notion schema.
+React 19 + Vite 7 portfolio, with Notion as the existing content source. Cloudflare Pages receives static builds through GitHub Actions. The existing Vercel environment remains available; this setup does not change DNS or delete deployments. The existing Notion database is preserved, with only the owner-approved additive `Featured` checkbox.
 
 ## Local development and production builds
 
@@ -83,7 +83,7 @@ Scheduled jobs run from the default branch and may be delayed or skipped by GitH
    | `NOTION_TOKEN` | Existing Notion integration with read access to the content database/pages |
    | `NOTION_DATABASE_ID` | Existing database ID; do not create a replacement database |
 
-   The workflow's GitHub token has only `contents: read`. Notion secrets are passed to the build step; Cloudflare credentials are passed to the upload action. Secret-presence checks print names only. No secret values belong in workflow YAML, this README, or shell command arguments.
+   The workflow's GitHub token has only `contents: read`. Notion secrets are passed to the build step; Cloudflare credentials are passed only to the pinned Wrangler upload command. Secret-presence checks print names only. No secret values belong in workflow YAML, this README, or shell command arguments.
 
 5. Commit and push the reviewed changes only when approved, then run the workflow. Inspect its deployment URL and perform the checks below before considering the deployment live. A local OAuth login does not provision GitHub secrets automatically.
 
@@ -145,3 +145,5 @@ npx wrangler@4.156.1 pages dev dist --port 8788
 Regression coverage protects publication gating, pagination, duplicate slugs, expiring-media snapshots, and unsafe links/paths. The real database sync published 7 works, including existing page bodies. Browser checks exercised category filters, detail navigation, legacy hash URLs, keyboard activation, and 320/390/768/1440px layouts without horizontal overflow. Reduced-motion mode ran with zero animations. The built browser assets were checked against the actual Notion token and contained no match.
 
 Production Pages URL: **https://portfo-e55.pages.dev/**. The first verified deployment is [f3831b34](https://f3831b34.portfo-e55.pages.dev/). HTTP checks confirmed Home/list/detail/About/Lab and an existing image return 200 over HTTPS; unrelated unknown URLs and `.env` return 404; trailing-slash listing routes redirect canonically. Unknown work slugs show the client not-found page with the static HTTP-200 limitation described above.
+
+GitHub push-triggered continuous deployment was exercised successfully: [Actions run 41393749105](https://github.com/Mino829/portfo/actions/runs/41393749105) completed lint, all 4 regression tests, real Notion sync, production build, and Pages deployment. Its production snapshot is [a8615324](https://a8615324.portfo-e55.pages.dev/). The workflow now uses Node-24-based checkout/setup actions and the pinned Wrangler CLI directly, avoiding the Node-20 action-runtime deprecation.
