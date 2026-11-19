@@ -35,6 +35,32 @@ export function WorkImage({ work, priority = false, className = "" }) {
   );
 }
 
+function projectLinkLabel(kind, href) {
+  if (kind === "github") return "GitHubで見る";
+  if (kind === "figma") return "Figmaで見る";
+  const { hostname, pathname } = new URL(href);
+  const host = hostname.replace(/^www\./, "");
+  if (host === "instagram.com") {
+    return pathname.startsWith("/reel/") ? "Instagramで映像を見る" : "Instagramで作品を見る";
+  }
+  if (["youtube.com", "m.youtube.com", "youtu.be"].includes(host)) return "YouTubeで映像を見る";
+  return "デモを見る";
+}
+
+export function ProjectLinks({ links }) {
+  const entries = Object.entries(links).filter(([, href]) => href);
+  if (!entries.length) return null;
+  return (
+    <div className="project-links">
+      {entries.map(([kind, href]) => (
+        <a key={kind} href={href} target="_blank" rel="noreferrer">
+          {projectLinkLabel(kind, href)}
+        </a>
+      ))}
+    </div>
+  );
+}
+
 export function WorkCard({ work, index }) {
   return (
     <article className="work-card">

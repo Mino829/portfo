@@ -3,7 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { works } from "./data/works.js";
 import { siteContent } from "./data/site.js";
 import { categoryLabel, routeForWork } from "./lib/routes.js";
-import { WorkCard, WorkImage, SectionLabel } from "./components/Work.jsx";
+import { WorkCard, WorkImage, SectionLabel, ProjectLinks } from "./components/Work.jsx";
 import { NotionBody } from "./components/NotionBody.jsx";
 import { ContentHeading } from "./components/ContentHeading.jsx";
 import {
@@ -41,7 +41,14 @@ export function Home() {
               <p className="hero-statement cms-text">{hero.text}</p>
             )}
           </div>
-          {hero.detail && <p className="hero-aside cms-text">{hero.detail}</p>}
+          <div className="hero-aside">
+            {hero.detail && <p className="cms-text">{hero.detail}</p>}
+            {lead && (
+              <a className="text-link" href="#selected-heading">
+                代表作を見る
+              </a>
+            )}
+          </div>
         </div>
       </section>
       <section
@@ -49,7 +56,7 @@ export function Home() {
         aria-labelledby="selected-heading"
       >
         <div className="section-top">
-          <h2 id="selected-heading" className="eyebrow">
+          <h2 id="selected-heading" className="eyebrow" tabIndex={-1}>
             {featured.length ? "FEATURED WORKS" : "SELECTED PROJECTS"}
           </h2>
           <Link className="text-link" to="/work">
@@ -68,15 +75,30 @@ export function Home() {
             </Link>
             <div className="featured-copy">
               <p className="eyebrow">
-                {categoryLabel(lead.category)} / {lead.year}
+                {[categoryLabel(lead.category), lead.year].filter(Boolean).join(" / ")}
               </p>
               <h3>
                 <Link to={routeForWork(lead)}>{lead.title}</Link>
               </h3>
-              <p className="eyebrow muted">{lead.stack.join(" / ")}</p>
-              <p className="japanese">{lead.summary}</p>
+              {lead.summary && <p className="japanese">{lead.summary}</p>}
+              {(lead.role || lead.stack.length > 0) && (
+                <dl className="featured-facts">
+                  {lead.role && (
+                    <>
+                      <dt>担当</dt>
+                      <dd>{lead.role}</dd>
+                    </>
+                  )}
+                  {lead.stack.length > 0 && (
+                    <>
+                      <dt>使用技術</dt>
+                      <dd>{lead.stack.join(" / ")}</dd>
+                    </>
+                  )}
+                </dl>
+              )}
               <Link className="text-link" to={routeForWork(lead)}>
-                VIEW PROJECT ↗
+                制作の詳細を見る
               </Link>
             </div>
           </article>
@@ -85,13 +107,24 @@ export function Home() {
         )}
         {selected.slice(1).map((work, index) => (
           <Link className="project-row" key={work.slug} to={routeForWork(work)}>
-            <span className="eyebrow">
-              {String(index + 2).padStart(2, "0")}
-            </span>
-            <h3>{work.title}</h3>
-            <span className="eyebrow">{categoryLabel(work.category)}</span>
-            <span className="eyebrow">{work.year}</span>
-            <span aria-hidden="true">↗</span>
+            <div className="row-preview" aria-hidden="true">
+              {work.thumbnail ? (
+                <ResponsiveImage
+                  src={work.thumbnail}
+                  alt=""
+                  sizes="(max-width: 640px) 80px, 140px"
+                />
+              ) : (
+                <span>{String(index + 2).padStart(2, "0")}</span>
+              )}
+            </div>
+            <div className="row-copy">
+              <p className="eyebrow">
+                {[categoryLabel(work.category), work.year].filter(Boolean).join(" / ")}
+              </p>
+              <h3>{work.title}</h3>
+            </div>
+            {work.summary && <p className="row-summary">{work.summary}</p>}
           </Link>
         ))}
         <div className="folio">
@@ -270,35 +303,36 @@ export function WorkDetail() {
     .filter((item) => item.slug !== slug && item.category === work.category)
     .slice(0, 2);
   const metadata = [
-    ["ROLE", work.role],
-    ["TECHNOLOGIES", work.stack.join(" / ")],
-    ["YEAR", work.year],
-    ["STATUS", work.status],
+    ["担当", work.role],
+    ["使用技術", work.stack.join(" / ")],
+    ["制作状況", work.status],
   ].filter(([, value]) => value);
-  const links = Object.entries(work.links).filter(([, value]) => value);
   return (
     <article className="container project-detail page-section">
       <Link className="text-link back-link" to="/work">
-        ↖ BACK TO WORK
+        作品一覧へ
       </Link>
-      <div className="detail-title">
-        <p className="eyebrow">
-          {categoryLabel(work.category)} / {work.type} / {work.year}
-        </p>
-        <h1>{work.title}</h1>
-        {work.summary && <p className="detail-summary">{work.summary}</p>}
+      <div className="detail-overview">
+        <header className="detail-title">
+          <p className="eyebrow">
+            {[categoryLabel(work.category), work.type, work.year].filter(Boolean).join(" / ")}
+          </p>
+          <h1>{work.title}</h1>
+          {work.summary && <p className="detail-summary">{work.summary}</p>}
+          <ProjectLinks links={work.links} />
+        </header>
+        {metadata.length > 0 && (
+          <dl className="project-metadata">
+            {metadata.map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
       </div>
-      <WorkImage work={work} priority className="detail-cover" />
-      {metadata.length > 0 && (
-        <dl className="project-metadata">
-          {metadata.map(([label, value]) => (
-            <div key={label}>
-              <dt className="eyebrow">{label}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))}
-        </dl>
-      )}
+      {work.thumbnail && <WorkImage work={work} priority className="detail-cover" />}
       {work.images?.length > 0 && (
         <section className="gallery" aria-label="作品ギャラリー">
           {work.images.map((image, index) => (
@@ -330,21 +364,6 @@ export function WorkDetail() {
             ))}
           </ul>
         </section>
-      )}
-      {links.length > 0 && (
-        <div className="project-links">
-          {links.map(([label, href]) => (
-            <a
-              className="text-link"
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              {label.toUpperCase()} ↗
-            </a>
-          ))}
-        </div>
       )}
       {related.length > 0 && (
         <section className="related">

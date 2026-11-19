@@ -64,9 +64,7 @@ function Header() {
         <NavLink to="/work">WORK</NavLink>
         <NavLink to="/about">ABOUT</NavLink>
         <NavLink to="/lab">LAB</NavLink>
-        <a href="#contact">
-          CONTACT <span aria-hidden="true">↗</span>
-        </a>
+        <a href="#contact">CONTACT</a>
       </nav>
     </header>
   );
