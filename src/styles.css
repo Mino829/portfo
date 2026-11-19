@@ -201,11 +201,6 @@ p {
   overflow: hidden;
   animation: mark-reveal 1000ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-.hero-mark span {
-  position: absolute;
-  inset: 13%;
-  border: 1px solid rgba(23, 24, 23, 0.22);
-}
 .hero-bottom {
   margin-top: 72px;
   display: flex;
@@ -979,9 +974,6 @@ dd {
   .hero-mark {
     flex-basis: 12%;
     margin-top: 2px;
-  }
-  .hero-mark span {
-    inset: 18%;
   }
   .hero-bottom {
     margin-top: 48px;

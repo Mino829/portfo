@@ -30,9 +30,7 @@ export function Home() {
           <h1 aria-label={hero.heading.replace(/\s+/g, " ")}>
             <ContentHeading text={hero.heading} animated accentDot />
           </h1>
-          <div className="hero-mark" aria-hidden="true">
-            <span />
-          </div>
+          <div className="hero-mark" aria-hidden="true" />
         </div>
         <div className="hero-bottom">
           <div>
