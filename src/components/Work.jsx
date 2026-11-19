@@ -40,6 +40,7 @@ function projectLinkLabel(kind, href) {
   if (kind === "figma") return "Figmaで見る";
   const { hostname, pathname } = new URL(href);
   const host = hostname.replace(/^www\./, "");
+  if (host === "shibalab.com") return "ShibaLab公式サイトで見る";
   if (host === "instagram.com") {
     return pathname.startsWith("/reel/") ? "Instagramで映像を見る" : "Instagramで作品を見る";
   }
