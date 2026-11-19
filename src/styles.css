@@ -201,6 +201,15 @@ p {
   overflow: hidden;
   animation: mark-reveal 1000ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+.hero-mark::before {
+  content: "";
+  position: absolute;
+  inset: 16% 18%;
+  transform: skewX(-14deg);
+  background: linear-gradient(90deg, #a3371b 12%, #b53e20 52%, #ffd0aa 96%);
+  mask-image: repeating-linear-gradient(90deg, #000 0 3.5%, transparent 3.5% 12%);
+  clip-path: polygon(0 77%, 24% 53%, 57% 8%, 100% 0, 100% 23%, 76% 47%, 43% 92%, 0 100%);
+}
 .hero-bottom {
   margin-top: 72px;
   display: flex;
@@ -974,6 +983,9 @@ dd {
   .hero-mark {
     flex-basis: 12%;
     margin-top: 2px;
+  }
+  .hero-mark::before {
+    mask-image: repeating-linear-gradient(90deg, #000 0 7%, transparent 7% 23%);
   }
   .hero-bottom {
     margin-top: 48px;
