@@ -73,6 +73,8 @@ function Header() {
 function Footer({ year }) {
   const identity = siteContent["site.identity"];
   const intro = siteContent["contact.intro"];
+  const email = siteContent["contact.email"];
+  const emailAddress = email?.url.startsWith("mailto:") ? email.url.slice(7) : "";
   const contacts = Object.values(siteContent).filter(
     (row) =>
       row.key.startsWith("contact.") &&
@@ -97,23 +99,33 @@ function Footer({ year }) {
           )}
         </>
       )}
-      {(intro?.text || contacts.length > 0) && (
+      {(intro?.text || emailAddress || contacts.length > 0) && (
         <div className="contact-bottom">
           {intro?.text && <p className="cms-text">{intro.text}</p>}
-          {contacts.length > 0 && (
-            <div className="contact-links">
-              {contacts.map((contact) => (
-                <a
-                  className="cms-text"
-                  key={contact.key}
-                  href={contact.url}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {contact.heading || contact.label}{" "}
-                  <span aria-hidden="true">↗</span>
+          {(emailAddress || contacts.length > 0) && (
+            <div className="contact-channels">
+              {emailAddress && (
+                <a className="contact-email" href={email.url}>
+                  <span className="eyebrow">{email.heading || email.label}</span>
+                  <span>{emailAddress}</span>
                 </a>
-              ))}
+              )}
+              {contacts.length > 0 && (
+                <div className="contact-links">
+                  {contacts.map((contact) => (
+                    <a
+                      className="cms-text"
+                      key={contact.key}
+                      href={contact.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {contact.heading || contact.label}{" "}
+                      <span aria-hidden="true">↗</span>
+                    </a>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

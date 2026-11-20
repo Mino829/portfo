@@ -120,7 +120,7 @@ try {
         text: readText(props.Text),
         detail: readText(props.Detail),
         linkLabel: readText(props.LinkLabel),
-        url: safeExternalUrl(props.URL.url),
+        url: siteContentUrl(key, props.URL.url),
         order: props.Order.number,
         body: [],
       },
@@ -414,6 +414,14 @@ function hasSigningParameters(url) {
 function safeExternalUrl(value) {
   const url = httpUrl(value);
   return url && !hasSigningParameters(url) ? url.href : "";
+}
+
+function siteContentUrl(key, value) {
+  const link = value?.trim() ?? "";
+  if (key === "contact.email" && /^mailto:[a-z0-9._+-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)+$/i.test(link)) {
+    return "mailto:" + link.slice(7);
+  }
+  return safeExternalUrl(value);
 }
 
 function localImagePath(value) {

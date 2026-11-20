@@ -321,6 +321,7 @@ test("unsafe contact URLs are excluded without blocking published content", asyn
     "/contact",
     "https://user:secret@example.com",
     "https://example.com/?X-Amz-Signature=private",
+    "mailto:other@example.com",
     "https://example.com/profile",
   ];
   const { result, siteContent, siteOutput } = await runSync(t, {
@@ -333,6 +334,9 @@ test("unsafe contact URLs are excluded without blocking published content", asyn
             URL: { type: "url", url },
           }),
         ),
+        sitePage("email", "contact.email", {
+          URL: { type: "url", url: "mailto:hello+portfolio@example.com" },
+        }),
       ],
     ],
   });
@@ -340,7 +344,8 @@ test("unsafe contact URLs are excluded without blocking published content", asyn
   for (let index = 0; index < urls.length - 1; index++) {
     assert.equal(siteContent[`contact.profile-${index}`].url, "");
   }
-  assert.equal(siteContent["contact.profile-5"].url, urls[5]);
+  assert.equal(siteContent[`contact.profile-${urls.length - 1}`].url, urls.at(-1));
+  assert.equal(siteContent["contact.email"].url, "mailto:hello+portfolio@example.com");
   assert.equal(siteOutput.includes("secret"), false);
   assert.equal(siteOutput.includes("private"), false);
 });

@@ -68,7 +68,8 @@ The existing public copy was migrated into 15 records; there is no hardcoded fal
 | `about.intro` | About headline, short intro, detailed intro, optional page-body blocks |
 | `about.credit.*` | Profile/skills rows; additional published keys appear automatically |
 | `contact.intro` | Contact heading and introductory copy |
-| `contact.*` except `contact.intro` | Social/contact links; additional published keys appear automatically |
+| `contact.email` | Primary email link; set URL to `mailto:name@example.com` and Heading to the displayed label |
+| Other `contact.*` keys | Social/contact links; additional published keys appear automatically |
 
 | Property | Editing rule |
 | --- | --- |
@@ -78,7 +79,7 @@ The existing public copy was migrated into 15 records; there is no hardcoded fal
 | `Heading`, `Label` | Main heading and small label; rich text |
 | `Text`, `Detail` | Main copy and supporting copy; rich text |
 | `LinkLabel` | Text for the built-in section link; its internal route stays in code |
-| `URL` | Actual external HTTP(S) destination for a contact link |
+| `URL` | HTTP(S) destination, or a single plain `mailto:` address for `contact.email` |
 | `Order` | Display order; number, unset values last |
 | `Published` | Only checked records are included in generated public content |
 

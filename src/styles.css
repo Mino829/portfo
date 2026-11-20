@@ -513,6 +513,23 @@ p {
 .contact-bottom p {
   font-size: 13px;
 }
+.contact-channels {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.contact-email {
+  display: grid;
+  justify-self: start;
+  gap: 4px;
+  padding-block: 8px;
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+  overflow-wrap: anywhere;
+}
+.contact-email span:last-child {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
 .contact-links {
   display: flex;
   flex-wrap: wrap;
@@ -1087,7 +1104,7 @@ dd {
     display: block;
     padding-block: 28px;
   }
-  .contact-links {
+  .contact-channels {
     margin-top: 20px;
   }
   .contact-section .folio {
